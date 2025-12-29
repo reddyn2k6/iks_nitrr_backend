@@ -120,3 +120,43 @@ export const updatePeople = async (req, res) => {
     });
   }
 };
+
+export const deletePeople = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const person = await People.findById(id);
+    if (!person) {
+      return res.status(404).json({
+        success: false,
+        msg: "Person not found"
+      });
+    }
+
+    // delete image from cloudinary if exists
+    if (person.photo) {
+      const publicId = person.photo
+        .split("/")
+        .pop()
+        .split(".")[0];
+
+      await cloudinary.uploader.destroy(
+        `service-images/${publicId}`
+      );
+    }
+
+    await People.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      msg: "Person deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Error deleting person:", error);
+    res.status(500).json({
+      success: false,
+      msg: error.message
+    });
+  }
+};
