@@ -29,7 +29,6 @@ export const addPerson = async (req, res) => {
       });
     }
 
-    // ✅ correct file reference
     const photo = await uploadImage(req.file);
 
     const people = await People.create({
@@ -69,6 +68,55 @@ export const getAllPeople = async (req, res) => {
     res.status(500).json({
       success: false,
       msg: "Server error"
+    });
+  }
+};
+
+export const updatePeople = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, role, email, alternateEmail } = req.body;
+
+    // check if person exists
+    const person = await People.findById(id);
+    if (!person) {
+      return res.status(404).json({
+        success: false,
+        msg: "Person not found"
+      });
+    }
+
+    let photo = person.photo;
+    if (req.file) {
+      photo = await uploadImage(req.file);
+    }
+
+    const updatedPerson = await People.findByIdAndUpdate(
+      id,
+      {
+        name,
+        role,
+        email,
+        alternateEmail,
+        photo
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      msg: "Person updated successfully",
+      data: updatedPerson
+    });
+
+  } catch (error) {
+    console.error("Error updating person:", error);
+    res.status(500).json({
+      success: false,
+      msg: error.message
     });
   }
 };

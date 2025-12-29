@@ -1,5 +1,5 @@
 import express from "express";
-import { addPerson, getAllPeople } from "../controller/peopleController.js";
+import { addPerson, getAllPeople,updatePeople } from "../controller/peopleController.js";
 import upload from "../middleware/upload.js";
 
 const router=express.Router();
@@ -7,6 +7,7 @@ const router=express.Router();
 
 router.post("/addperson", upload.single("photo"), addPerson);
 router.get("/getpeople", getAllPeople);
+router.put("/update/:id", upload.single("photo"), updatePeople);
 
 
 
